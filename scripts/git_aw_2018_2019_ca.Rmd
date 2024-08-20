@@ -1,0 +1,194 @@
+---
+title: "anomhot_2018_2019_ca"
+author: "Brittany Shea"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Download temperature data: https://github.com/rmp15/PRISM-grids-into-FIPS-ZIP-censustract-USA/tree/main/output/fips/tmean
+
+# Load libraries
+```{r}
+library(readr)
+library(viridis)
+library(stringr)
+library(tidyverse)
+library(lubridate)
+library(rgdal)
+library(ggplot2)
+library(raster)
+library(sp)
+library(plyr)
+library(graticule)
+library(zoo)
+library(dplyr)
+library(conflicted)
+```
+
+# Remove conflicts when working with dplyr & spatial data
+```{r}
+conflict_prefer("filter", "dplyr")
+```
+
+# Load temperature data 1981-2020
+```{r}
+dat1 = readRDS("data/weighted_area_raster_fips_tmean_daily_1981.rds")
+dat2 = readRDS("data/weighted_area_raster_fips_tmean_daily_1982.rds")
+dat3 = readRDS("data/weighted_area_raster_fips_tmean_daily_1983.rds")
+dat4 = readRDS("data/weighted_area_raster_fips_tmean_daily_1984.rds")
+dat5 = readRDS("data/weighted_area_raster_fips_tmean_daily_1985.rds")
+dat6 = readRDS("data/weighted_area_raster_fips_tmean_daily_1986.rds")
+dat7 = readRDS("data/weighted_area_raster_fips_tmean_daily_1987.rds")
+dat8 = readRDS("data/weighted_area_raster_fips_tmean_daily_1988.rds")
+dat9 = readRDS("data/weighted_area_raster_fips_tmean_daily_1989.rds")
+dat10 = readRDS("data/weighted_area_raster_fips_tmean_daily_1990.rds")
+dat11 = readRDS("data/weighted_area_raster_fips_tmean_daily_1991.rds")
+dat12 = readRDS("data/weighted_area_raster_fips_tmean_daily_1992.rds")
+dat13 = readRDS("data/weighted_area_raster_fips_tmean_daily_1993.rds")
+dat14 = readRDS("data/weighted_area_raster_fips_tmean_daily_1994.rds")
+dat15 = readRDS("data/weighted_area_raster_fips_tmean_daily_1995.rds")
+dat16 = readRDS("data/weighted_area_raster_fips_tmean_daily_1996.rds")
+dat17 = readRDS("data/weighted_area_raster_fips_tmean_daily_1997.rds")
+dat18 = readRDS("data/weighted_area_raster_fips_tmean_daily_1998.rds")
+dat19 = readRDS("data/weighted_area_raster_fips_tmean_daily_1999.rds")
+dat20 = readRDS("data/weighted_area_raster_fips_tmean_daily_2000.rds")
+dat21 = readRDS("data/weighted_area_raster_fips_tmean_daily_2001.rds")
+dat22 = readRDS("data/weighted_area_raster_fips_tmean_daily_2002.rds")
+dat23 = readRDS("data/weighted_area_raster_fips_tmean_daily_2003.rds")
+dat24 = readRDS("data/weighted_area_raster_fips_tmean_daily_2004.rds")
+dat25 = readRDS("data/weighted_area_raster_fips_tmean_daily_2005.rds")
+dat26 = readRDS("data/weighted_area_raster_fips_tmean_daily_2006.rds")
+dat27 = readRDS("data/weighted_area_raster_fips_tmean_daily_2007.rds")
+dat28 = readRDS("data/weighted_area_raster_fips_tmean_daily_2008.rds")
+dat29 = readRDS("data/weighted_area_raster_fips_tmean_daily_2009.rds")
+dat30 = readRDS("data/weighted_area_raster_fips_tmean_daily_2010.rds")
+dat31 = readRDS("data/weighted_area_raster_fips_tmean_daily_2018.rds")
+dat32 = readRDS("data/weighted_area_raster_fips_tmean_daily_2019.rds")
+```
+
+# Combine 1981-2010 data frames into one data frame
+```{r}
+bind_weighted_area_raster_fips_tmean_daily_1981_2010 <- rbind(dat1, dat2, dat3, dat4, dat5, dat6, dat7,
+                                                              dat8, dat9, dat10, dat11, dat12, dat13, dat14,
+                                                              dat15, dat16, dat17, dat18, dat19, dat20, dat21,
+                                                              dat22, dat23, dat24, dat25, dat26, dat27, dat28,
+                                                              dat29, dat30)
+```
+
+# Combine 2018-2019 data frames into one data frame
+```{r}
+bind_weighted_area_raster_fips_tmean_daily_2018_2019 <- rbind(dat31, dat32)
+```
+
+# Change format of date columns
+```{r}
+bind_weighted_area_raster_fips_tmean_daily_1981_2010 <- bind_weighted_area_raster_fips_tmean_daily_1981_2010 %>%
+  dplyr::mutate(date = lubridate::dmy(date))
+
+bind_weighted_area_raster_fips_tmean_daily_2018_2019 <- bind_weighted_area_raster_fips_tmean_daily_2018_2019 %>%
+  dplyr::mutate(date = lubridate::dmy(date))
+```
+
+# Group data frames by week in year
+```{r}
+bind_weighted_area_raster_fips_tmean_daily_1981_2010$week_num <- strftime(bind_weighted_area_raster_fips_tmean_daily_1981_2010$date, format = "%V")
+
+bind_weighted_area_raster_fips_tmean_daily_2018_2019$week_num <- strftime(bind_weighted_area_raster_fips_tmean_daily_2018_2019$date, format = "%V")
+```
+
+# For months with 53 values, average it with 52
+```{r}
+bind_weighted_area_raster_fips_tmean_daily_1981_2010$week_num[which(bind_weighted_area_raster_fips_tmean_daily_1981_2010$week_num == "53")] = "52"
+
+bind_weighted_area_raster_fips_tmean_daily_2018_2019$week_num[which(bind_weighted_area_raster_fips_tmean_daily_2018_2019$week_num == "53")] = "52"
+```
+
+# Group "bind_weighted_area_raster_fips_tmean_daily_1981_2010" by week and county, then calculate 85th percentile using weekly long-term average
+```{r}
+dname = 'hot_85th'
+
+fips85thpercentile = bind_weighted_area_raster_fips_tmean_daily_1981_2010 %>% 
+  group_by(week_num,fips) %>%
+  dplyr::summarise(hot_85th = quantile(tmean, probs = 0.85)) %>%
+  dplyr::mutate(fips = as.numeric(as.character(fips)))
+```
+
+# Group "bind_weighted_area_raster_fips_tmean_daily_2018_2019" by week and county, then find count of number of days over a threshold (>24°C)
+```{r}
+dname = 'tmean'
+
+threshold = 24
+
+over24_tmean_daily_2018_2019 <- bind_weighted_area_raster_fips_tmean_daily_2018_2019 %>%
+  dplyr::mutate(over_24 = ifelse(get(dname) > threshold,1,0)) %>%
+  dplyr::group_by(fips) %>%
+  dplyr::mutate(fips = as.numeric(as.character(fips)))
+```
+
+# Perform left join
+```{r}
+join_tmean_daily_over24_85th_2018_2019 <- over24_tmean_daily_2018_2019 %>%
+  left_join(fips85thpercentile, by = c("week_num" = "week_num", "fips" = "fips"))
+```
+
+# Create new column to determine whether tmean_daily meets thresholds
+```{r}
+#first find days that meet 85th percentile threshold and the median for the tmean column
+join_tmean_daily_85th_2018_2019 <- join_tmean_daily_over24_85th_2018_2019 %>%
+  dplyr::mutate(anomwarm = ifelse(tmean >= hot_85th, 1,0)) %>% 
+    filter(anomwarm == 1) %>% 
+    subset(fips %in% 6001:6115)
+
+#find the median for the tmean column
+median(join_tmean_daily_85th_2018_2019$tmean)
+
+#find the 25th percentile for the tmean column
+quantile(join_tmean_daily_85th_2018_2019$tmean, probs = 0.25)
+
+#find the 75th percentile for the tmean column
+quantile(join_tmean_daily_85th_2018_2019$tmean, probs = 0.75)
+
+
+#Create new column to determine whether tmean_daily meets 2 thresholds
+join_tmean_daily_over24_85th_2018_2019 <- join_tmean_daily_over24_85th_2018_2019 %>%
+  dplyr::mutate(anomwarm = ifelse(over_24 == 1 & tmean >= hot_85th, 1,0))
+```
+
+# Find number of hot days by county in CA only and meets threshold
+```{r}
+join_tmean_daily_over24_85th_2018_2019 <- join_tmean_daily_over24_85th_2018_2019 %>%
+  filter(anomwarm == 1) %>% 
+  subset(fips %in% 6001:6115)
+
+aw2join = join_tmean_daily_over24_85th_2018_2019
+
+ncol = paste(aw2join$fips,aw2join$date,sep = "")
+
+aw2join$fipdate = ncol
+
+aw2join2 = aw2join[ ,c("fipdate","date","fips","anomwarm")]
+
+colnames(aw2join2) = c("fipdate", "date_aw",  "fips_aw", "exposed_aw")
+
+write_csv(aw2join2, "output/aw2join.csv")
+
+
+```
+
+# Check data with a table
+```{r}
+table(join_tmean_daily_over24_85th_2018_2019$anomwarm,join_tmean_daily_over24_85th_2018_2019$month)
+```
+
+# Find number of warm days by county over time
+```{r}
+county_count_warm <- join_tmean_daily_over24_85th_2018_2019 %>% 
+  group_by(fips) %>%
+  dplyr::summarize(total_warm = sum(anomwarm))
+```
+
+# Save file
+```{r}
+write_csv(county_count_warm, "output/aw_data.csv")
+
+```
