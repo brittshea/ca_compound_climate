@@ -4,6 +4,7 @@ author: "Brittany Shea"
 date: "`r Sys.Date()`"
 output: html_document
 ---
+# Source of data: Parameter-elevation Regressions on Independent Slopes Model (PRISM) by PRISM Climate group Oregon State temperature, precipitation 4km daily weather variable grids converted by Dr. Robbie M. Parks to daily county FIPS, ZIP Code, and census tract summaries 
 
 # Download temperature data: https://github.com/rmp15/PRISM-grids-into-FIPS-ZIP-censustract-USA/tree/main/output/fips/tmean
 
