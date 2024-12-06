@@ -1,4 +1,4 @@
-# ca_cooccurring_climate
+# Co-occurring Climate Events and Environmental Justice in California, 2018-2019
 
 Description: This repository contains the code and data for the paper "Co-occurring Climate Events and Environmental Justice in California, 2018-2019"
 
