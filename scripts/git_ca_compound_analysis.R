@@ -1,4 +1,4 @@
-#Compound climate hazards analysis for CA, 2018-2019
+#Co-occurring climate events analysis for CA, 2018-2019
 #Author: Brittany Shea
 #Date: 08-16-2024
 
@@ -138,7 +138,7 @@ days_single_events = merge(days_single_events, po_days, by = "fips", all = TRUE)
 write.csv(days_single_events, "output/days_single_events.csv") 
 
 #-------------------------
-#select compound events and extract unique fips
+#select co-occurring events and extract unique fips
 
 #WD & AW
 wd_aw_comp <- aw_po_wd_merge %>% 
@@ -173,7 +173,7 @@ wd_aw_po_comp_count = aggregate(wd_aw_po_comp$exposed_aw, by = list(fips = wd_aw
 colnames(wd_aw_po_comp_count)[2] = "wd_aw_po"
 
 #-------------------------
-#merge dfs with compound events & unique events per fips ("wd_aw_comp_count", "wd_po_comp_count", & "po_aw_comp_count")
+#merge dfs with co-occurring events & unique events per fips ("wd_aw_comp_count", "wd_po_comp_count", & "po_aw_comp_count")
 
 comp_count_fips = merge(wd_aw_comp_count,wd_po_comp_count, by = "fips", all = TRUE)
 comp_count_fips = merge(comp_count_fips,po_aw_comp_count, by = "fips", all = TRUE)
@@ -208,19 +208,19 @@ svi_table = final_count_fips %>%
 write.csv(svi_table, "output/svi_events_table.csv") 
 
 #-------------------------
-#look at distribution of compound climate hazards (by count of different types of compound events and total count of compound events)
+#look at distribution of co-occurring climate events (by count of different types of co-occurring events and total count of co-occurring events)
 
-#count total compound events per row
+#count total co-occurring events per row
 
 distribution_comp <- svi_table %>%
   mutate(total_events = rowSums(select(., aw_wd:aw_wd_po), na.rm = TRUE))
 
-#count number of types of compound events per row
+#count number of types of co-occurring events per row
 
 distribution_comp <- distribution_comp %>%
   mutate(types_of_events = rowSums(select(., aw_wd:aw_wd_po) != 0, na.rm = TRUE))
 
-#order rows based on total compound events and number of types of compound events
+#order rows based on total co-occurring events and number of types of co-occurring events
 
 distribution_comp <- distribution_comp %>%
   arrange(desc(total_events), desc(types_of_events))
@@ -238,7 +238,7 @@ top_quarter_svi <- final_count_fips[final_count_fips$svi > third_quantile_svi, ]
 
 print(top_quarter_svi)
 
-#find the total number of compound days in top quarter
+#find the total number of co-occurring days in top quarter
 
 sum(top_quarter_svi$aw_days)
 
@@ -254,12 +254,12 @@ bottom_quarter_svi <- final_count_fips[final_count_fips$svi < first_quartile_svi
 
 print(bottom_quarter_svi)
 
-#find the total number of compound days in bottom quarter
+#find the total number of co-occurring days in bottom quarter
 
 sum(bottom_quarter_svi$po_aw)
 
 #-------------------------
-#plots of hazards by svi
+#plots of events by svi
 
 #WD & AW, SVI
 
@@ -280,7 +280,7 @@ plot1 <- ggplot(comp_wd_aw, aes(x = svi, y = wd_aw)) +
         axis.title.x = element_text(size = 23),
         axis.text = element_text(size = 16),
         title = element_text(size = 16)) + 
-  ggtitle("(A) Compound Anomalously Warm & Wildfire Disaster Days by CA County, 2018-2019 (n = 144 county-days)")
+  ggtitle("(A) Co-occurring Anomalously Warm & Wildfire Disaster Days by CA County, 2018-2019 (n = 144 county-days)")
 
 #WD & PO, SVI
 
@@ -302,7 +302,7 @@ plot2 <- ggplot(comp_wd_po, aes(x = svi, y = wd_po)) +
         axis.text = element_text(size = 16),
         title = element_text(size = 16)) + 
   labs(y = "Days", x = "SVI") +
-  ggtitle("(B) Compound Wildfire Disaster & Long Power Outage Days by CA County, 2018-2019 (n = 29 county-days)")
+  ggtitle("(B) Co-occurring Wildfire Disaster & Long Power Outage Days by CA County, 2018-2019 (n = 29 county-days)")
 
 #PO & AW, SVI
 
@@ -323,7 +323,7 @@ plot3 <- ggplot(comp_po_aw, aes(x = svi, y = po_aw)) +
         axis.title.x = element_text(size = 23),
         axis.text = element_text(size = 16),
         title = element_text(size = 16)) + 
-  ggtitle("(C) Compound Anomalously Warm & Long Power Outage Days by CA County, 2018-2019 (n = 10 county-days)")
+  ggtitle("(C) Co-occurring Anomalously Warm & Long Power Outage Days by CA County, 2018-2019 (n = 10 county-days)")
 
 #AW, SVI
 
@@ -389,7 +389,7 @@ plot6 <- ggplot(plot_po_days, aes(x = svi, y = po_days)) +
   ggtitle("(F) Long Power Outage Days by CA County, 2018-2019 (n = 597 county-days)")
 
 #-------------------------
-#combine the compound hazards into lollipop plots
+#combine the co-occurring events into lollipop plots
 
 combined_plot1 <- plot1 / plot_spacer() / plot2 / plot_spacer() / plot3 /
   plot_layout(heights = c(1, 0.01, 1, 0.05, 1))
@@ -398,7 +398,7 @@ combined_plot1 <- plot1 / plot_spacer() / plot2 / plot_spacer() / plot3 /
 
 print(combined_plot1)
 
-#combine the compound hazards into lollipop plots
+#combine the co-occurring events into lollipop plots
 
 combined_plot2 <- plot4 / plot_spacer() / plot5 / plot_spacer() / plot6 +
   plot_layout(heights = c(1, 0.01, 1, 0.05, 1))
@@ -408,7 +408,7 @@ combined_plot2 <- plot4 / plot_spacer() / plot5 / plot_spacer() / plot6 +
 print(combined_plot2)
 
 #-------------------------
-#spearman correlation SVI and exposure days 
+#spearman correlation SVI and event days 
 
 comp_wd_aw %>% 
   summarise(spearman = cor(x = svi, y = wd_aw, method = c("spearman")))
