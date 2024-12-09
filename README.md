@@ -1,6 +1,6 @@
-# ca_compound_climate
+# Co-occurring Climate Events and Environmental Justice in California, 2018-2019
 
-Description: This repository contains the code and data for the paper "Compound Climate Events and Environmental Justice in California, 2018-2019"
+Description: This repository contains the code and data for the paper "Co-occurring Climate Events and Environmental Justice in California, 2018-2019"
 
 Authors: Brittany Shea(1), Gabriella Y. Meltzer(2), Benjamin B. Steiger(1), Robbie M. Parks(1), Vivian
 Do(1), Heather McBrien(1), Nina Flores(1), Milo Gordon(1), Elizabeth M. Blake(3), Joan A. Casey(1,3,4)
