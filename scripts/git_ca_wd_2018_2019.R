@@ -1,6 +1,6 @@
-###Title: Wildfire Disasters in CA 2018-2019
+###Title: Wildfire burn zone disasters (WBZD) in CA 2018-2019
 ###Author: Brittany Shea
-###Date: 08-16-2024
+###Date: 12-09-24
 
 #-------------------------
 #load libraries
@@ -71,7 +71,7 @@ final_binded_ca_disaster_fires_2018_2019 <- st_transform(final_binded_ca_disaste
 
 sf::sf_use_s2(FALSE)
 
-#spatial intersection of wildfire gis data with county shapefile
+#spatial intersection of WBZD gis data with county shapefile
 
 ca_wd_2018_2019 <- 
   st_intersection(st_make_valid(final_binded_ca_disaster_fires_2018_2019), st_make_valid(ca_sf))
@@ -109,7 +109,7 @@ sub_ca_wd_2018_2019$fips <- sub("^","6",sub_ca_wd_2018_2019$fips)
 sub_ca_wd_2018_2019 <- unique( sub_ca_wd_2018_2019[ , c('year', 'state', 'fips','incident_name','value') ] )
 
 #-------------------------
-#create list of duplicates_wd to show counties with 2 wd in the same day
+#create list of duplicate WBZD to show counties with 2 WBZD in the same day
 
 duplicates_wd <- sub_ca_wd_2018_2019
 
@@ -122,7 +122,7 @@ duplicates_wd = duplicates_wd[duplicated(duplicates_wd$fipdate ) | duplicated(du
 write_csv(duplicates_wd, "output/duplicates_wd.csv")
 
 #-------------------------
-#create list of all wd including duplicates: join sub_ca_wd_2018_2019 df to ca_wd_2018_2019 df
+#create list of all WBZD including duplicates: join sub_ca_wd_2018_2019 df to ca_wd_2018_2019 df
 
 dup_exp_ca_wd_2018_2019 = left_join(sub_ca_wd_2018_2019, ca_wd_2018_2019, by = c("year" = "year", "state" = "state", "fips" = "fips", 
                                                          "incident_name" = "incident_name"))

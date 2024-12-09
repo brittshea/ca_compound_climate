@@ -1,6 +1,6 @@
 #Co-occurring climate events analysis for CA, 2018-2019
 #Author: Brittany Shea
-#Date: 08-16-2024
+#Date: 12-09-24
 
 #------------------------- 
 #load libraries
@@ -21,11 +21,11 @@ wd = read.csv("output/wd2join.csv")
 svi = read.csv("data/svi.csv")
 
 #-------------------------
-#list of only duplicate wildfires: counties that had more than 1 wildfire on the same day
+#list of only duplicate WBZD: counties that had more than 1 WBZD on the same day
 
 wd_dups = read.csv("output/duplicates_wd.csv")
 
-#list of wildfires including duplicates
+#list of WBZD including duplicates
 
 wd_with_dups = read.csv("output/dup_exp_ca_wd_2018_2019.csv")
 
@@ -73,10 +73,10 @@ po_aw_wd_barplot <- c(po_aw_wd_num, po_aw_num, wd_po_num, wd_aw_num, po_num, wd_
 
 #increase the size of the margins
 
-par(mar = c(8, 18, 4, 2) + 0.1)
+par(mar = c(8, 25, 4, 2) + 0.1)
 
 countydays_barplot <- barplot(po_aw_wd_barplot, 
-                              names.arg = c("AW + WD + PO", "AW + PO", "WD + PO", "AW + WD", "Power Outage (PO)", "Wildfire Disaster (WD)", "Anomalously Warm (AW)"),
+                              names.arg = c("AW + WBZD + PO", "AW + PO", "WBZD + PO", "AW + WBZD", "Power Outage (PO)", "Wildfire Burn Zone Disaster (WBZD)", "Anomalously Warm (AW)"),
                               las = 2,
                               col = "tomato2",
                               horiz = TRUE,
@@ -121,7 +121,7 @@ write_csv(aw_po_wd_merge, file = "output/countyday_aw_po_wd.csv")
 aw_po_wd_merge = read.csv("output/countyday_aw_po_wd.csv")
 
 #-------------------------
-#aggregate to find number of po aw wd days each fips has experienced
+#aggregate to find number of po aw wbzd days each fips has experienced
 
 aw_days = aggregate(aw_po_wd_merge$exposed_aw, by = list(fips = aw_po_wd_merge$fips), FUN = sum)
 colnames(aw_days)[2] = "aw_days"
@@ -140,7 +140,7 @@ write.csv(days_single_events, "output/days_single_events.csv")
 #-------------------------
 #select co-occurring events and extract unique fips
 
-#WD & AW
+#WBZD & AW
 wd_aw_comp <- aw_po_wd_merge %>% 
   filter(exposed_aw == 1 & exposed_wd == 1)
 wd_aw_fips = as.matrix(unique(wd_aw_comp$fips))
@@ -148,7 +148,7 @@ wd_aw_fips = as.matrix(unique(wd_aw_comp$fips))
 wd_aw_comp_count = aggregate(wd_aw_comp$exposed_aw, by = list(fips = wd_aw_comp$fips), FUN = sum)
 colnames(wd_aw_comp_count)[2] = "wd_aw"
 
-#WD & PO
+#WBZD & PO
 wd_po_comp <- aw_po_wd_merge %>% 
   filter(exposed_po == 1 & exposed_wd == 1)
 wd_po_fips = as.matrix(unique(wd_po_comp$fips))
@@ -164,7 +164,7 @@ po_aw_fips = as.matrix(unique(po_aw_comp$fips))
 po_aw_comp_count = aggregate(po_aw_comp$exposed_po, by = list(fips = po_aw_comp$fips), FUN = sum)
 colnames(po_aw_comp_count)[2] = "po_aw"
 
-#WD & AW & PO 
+#WBZD & AW & PO 
 wd_aw_po_comp <- aw_po_wd_merge %>% 
   filter(exposed_wd == 1 & exposed_aw == 1 & exposed_po == 1)
 wd_aw_po_fips = as.matrix(unique(wd_aw_po_comp$fips))
@@ -261,7 +261,7 @@ sum(bottom_quarter_svi$po_aw)
 #-------------------------
 #plots of events by svi
 
-#WD & AW, SVI
+#WBZD & AW, SVI
 
 #wd_aw != 0
 
@@ -280,9 +280,9 @@ plot1 <- ggplot(comp_wd_aw, aes(x = svi, y = wd_aw)) +
         axis.title.x = element_text(size = 23),
         axis.text = element_text(size = 16),
         title = element_text(size = 16)) + 
-  ggtitle("(A) Co-occurring Anomalously Warm & Wildfire Disaster Days by CA County, 2018-2019 (n = 144 county-days)")
+  ggtitle("(A) Co-occurring Anomalously Warm & Wildfire Burn Zone Disaster Days by CA County, 2018-2019 (n = 144 county-days)")
 
-#WD & PO, SVI
+#WBZD & PO, SVI
 
 #wd_po != 0
 
@@ -302,7 +302,7 @@ plot2 <- ggplot(comp_wd_po, aes(x = svi, y = wd_po)) +
         axis.text = element_text(size = 16),
         title = element_text(size = 16)) + 
   labs(y = "Days", x = "SVI") +
-  ggtitle("(B) Co-occurring Wildfire Disaster & Long Power Outage Days by CA County, 2018-2019 (n = 29 county-days)")
+  ggtitle("(B) Co-occurring Wildfire Burn Zone Disaster & Long Power Outage Days by CA County, 2018-2019 (n = 29 county-days)")
 
 #PO & AW, SVI
 
@@ -346,7 +346,7 @@ plot4 <- ggplot(plot_aw_days, aes(x = svi, y = aw_days)) +
         title = element_text(size = 16)) +
   ggtitle("(D) Anomalously Warm Days by CA County, 2018-2019 (n = 2004 county-days)")
 
-#WD, SVI
+#WBZD, SVI
 
 #wd_days != 0
 
@@ -365,7 +365,7 @@ plot5 <- ggplot(plot_wd_days, aes(x = svi, y = wd_days)) +
         axis.title.x = element_text(size = 23),
         axis.text = element_text(size = 16),
         title = element_text(size = 16)) + 
-  ggtitle("(E) Wildfire Disaster Days by CA County, 2018-2019 (n = 1131 county-days)")
+  ggtitle("(E) Wildfire Burn Zone Disaster Days by CA County, 2018-2019 (n = 1131 county-days)")
 
 #PO, SVI
 
